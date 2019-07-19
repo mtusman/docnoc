@@ -1,0 +1,18 @@
+docnoc:
+    default:
+        cpu:
+            min: 10
+            max: 180
+        memory:
+            max: 90
+        status:
+            - stopped
+            - started
+        exclude:
+            - web
+    web:
+        cpu:
+            max: 50
+        status:
+            - stopped
+        
