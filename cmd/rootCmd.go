@@ -39,5 +39,5 @@ func Execute() {
 func runDocNoc(*cobra.Command, []string) {
 	fmt.Println("Success: docnoc is up and running")
 	fmt.Println(*(flags.ConfigFile))
-	os.Exit(0)
+	pkg.NewDocNoc()
 }
