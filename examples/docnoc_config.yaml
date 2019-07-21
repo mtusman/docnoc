@@ -10,9 +10,8 @@ docnoc:
             - started
         exclude:
             - web
-    web:
-        cpu:
-            max: 50
-        status:
-            - stopped
-        
+    containers:
+        web:
+            cpu: 
+                min: 30
+                max: 200

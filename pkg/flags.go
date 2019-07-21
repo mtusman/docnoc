@@ -1,12 +1,15 @@
 package pkg
 
-import "os"
+import (
+	"os"
+	"path"
+)
 
 var defaultConfigFileLocation string
 
 func init() {
 	cwd, _ := os.Getwd()
-	defaultConfigFileLocation = cwd + "docnoc_config.yaml"
+	defaultConfigFileLocation = path.Join(cwd, "docnoc_config.yaml")
 }
 
 type Flags struct {

@@ -7,27 +7,28 @@ const (
 
 type (
 	MinMaxAllocation struct {
-		min int `yaml:"min"`
-		max int `yaml:"max"`
+		Min int `yaml:"min"`
+		Max int `yaml:"max"`
 	}
 
 	ContainerConfig struct {
 		CPU    MinMaxAllocation `yaml:"cpu"`
 		Memory MinMaxAllocation `yaml:"memory"`
 		Disk   MinMaxAllocation `yaml:"disk"`
-		Status struct {
-			StatusList []string `yaml:"status"`
-		}
+		Status []string         `yaml:"status"`
 	}
 
 	ExcludeContainerConfig struct {
-		ContainerConfig
-		Exclude []string `yaml:"exclude"`
+		CPU     MinMaxAllocation `yaml:"cpu"`
+		Memory  MinMaxAllocation `yaml:"memory"`
+		Disk    MinMaxAllocation `yaml:"disk"`
+		Status  []string         `yaml:"status"`
+		Exclude []string         `yaml:"exclude"`
 	}
 
 	Config struct {
 		ExcludeContainerConfig `yaml:"default"`
-		ContainersConfig       []ContainerConfig `yaml:"containers"`
+		ContainersConfig       map[string]ContainerConfig `yaml:"containers"`
 	}
 
 	DocNocConfig struct {
@@ -37,30 +38,23 @@ type (
 
 func NewMinMaxAllocation() MinMaxAllocation {
 	return MinMaxAllocation{
-		min: defaultMinAllocation,
-		max: defaultMaxAllocation,
+		Min: defaultMinAllocation,
+		Max: defaultMaxAllocation,
 	}
 }
 
-func NewContainerConfig() ContainerConfig {
-	return ContainerConfig{
+func NewExcludeContainerConfig() ExcludeContainerConfig {
+	return ExcludeContainerConfig{
 		CPU:    NewMinMaxAllocation(),
 		Memory: NewMinMaxAllocation(),
 		Disk:   NewMinMaxAllocation(),
 	}
 }
 
-func NewExcludeContainerConfig() ExcludeContainerConfig {
-	return ExcludeContainerConfig{
-		ContainerConfig: NewContainerConfig(),
-		Exclude:         []string{},
-	}
-}
-
 func NewConfig() Config {
 	return Config{
 		ExcludeContainerConfig: NewExcludeContainerConfig(),
-		ContainersConfig:       []ContainerConfig{},
+		ContainersConfig:       map[string]ContainerConfig{},
 	}
 }
 
