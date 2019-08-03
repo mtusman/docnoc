@@ -17,7 +17,7 @@ type DocNoc struct {
 }
 
 func NewDocNoc(flags *Flags) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.39"))
 	if err != nil {
 		fmt.Println("🔥: Can't connect to docker client")
 		os.Exit(1)
@@ -26,7 +26,6 @@ func NewDocNoc(flags *Flags) {
 	var f []byte
 	if flags.ConfigFile != nil {
 		cwd, _ := os.Getwd()
-		fmt.Println("Reading", path.Join(cwd, *flags.ConfigFile))
 		f, err = ioutil.ReadFile(path.Join(cwd, *flags.ConfigFile))
 	} else {
 		f, err = ioutil.ReadFile(defaultConfigFileLocation)
@@ -42,6 +41,5 @@ func NewDocNoc(flags *Flags) {
 	if err != nil {
 		fmt.Println("🔥: Can't unmarshall yaml file", err)
 	}
-
-	fmt.Println(cfg, cli)
+	ExcludeWatcher(&cfg.Config.ExcludeContainerConfig, cli)
 }
