@@ -37,5 +37,6 @@ func Execute() {
 }
 
 func runDocNoc(*cobra.Command, []string) {
-	pkg.NewDocNoc(flags)
+	dN := pkg.NewDocNoc(flags)
+	dN.StartScrubbing()
 }

@@ -7,23 +7,31 @@ const (
 
 type (
 	MinMaxAllocation struct {
-		Min int `yaml:"min"`
-		Max int `yaml:"max"`
+		Min float64 `yaml:"min"`
+		Max float64 `yaml:"max"`
 	}
 
 	ContainerConfig struct {
-		CPU    MinMaxAllocation `yaml:"cpu"`
-		Memory MinMaxAllocation `yaml:"memory"`
-		Disk   MinMaxAllocation `yaml:"disk"`
-		Status []string         `yaml:"status"`
+		CPU        MinMaxAllocation `yaml:"cpu"`
+		Memory     MinMaxAllocation `yaml:"memory"`
+		Disk       MinMaxAllocation `yaml:"disk"`
+		BlockWrite MinMaxAllocation `yaml:"block_write"`
+		BlockRead  MinMaxAllocation `yaml:"block_read"`
+		NetworkRx  MinMaxAllocation `yaml:"network_rx"`
+		NetworkTx  MinMaxAllocation `yaml:"network_tx"`
+		Status     []string         `yaml:"status"`
 	}
 
 	ExcludeContainerConfig struct {
-		CPU     MinMaxAllocation `yaml:"cpu"`
-		Memory  MinMaxAllocation `yaml:"memory"`
-		Disk    MinMaxAllocation `yaml:"disk"`
-		Status  []string         `yaml:"status"`
-		Exclude []string         `yaml:"exclude"`
+		CPU        MinMaxAllocation `yaml:"cpu"`
+		Memory     MinMaxAllocation `yaml:"memory"`
+		Disk       MinMaxAllocation `yaml:"disk"`
+		BlockWrite MinMaxAllocation `yaml:"block_write"`
+		BlockRead  MinMaxAllocation `yaml:"block_read"`
+		NetworkRx  MinMaxAllocation `yaml:"network_rx"`
+		NetworkTx  MinMaxAllocation `yaml:"network_tx"`
+		Status     []string         `yaml:"status"`
+		Exclude    []string         `yaml:"exclude"`
 	}
 
 	Config struct {
@@ -45,9 +53,13 @@ func NewMinMaxAllocation() MinMaxAllocation {
 
 func NewExcludeContainerConfig() ExcludeContainerConfig {
 	return ExcludeContainerConfig{
-		CPU:    NewMinMaxAllocation(),
-		Memory: NewMinMaxAllocation(),
-		Disk:   NewMinMaxAllocation(),
+		CPU:        NewMinMaxAllocation(),
+		Memory:     NewMinMaxAllocation(),
+		Disk:       NewMinMaxAllocation(),
+		BlockRead:  NewMinMaxAllocation(),
+		BlockWrite: NewMinMaxAllocation(),
+		NetworkRx:  NewMinMaxAllocation(),
+		NetworkTx:  NewMinMaxAllocation(),
 	}
 }
 
