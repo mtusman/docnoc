@@ -2,74 +2,80 @@ package pkg
 
 type Collector map[string]*Issues
 
-func (c *Collector) CPUIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerID string) {
-	_, ok := (*c)[containerID]
+func (c *Collector) CPUIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerName, containerID string) {
+	issues, ok := (*c)[containerName]
 	if !ok {
-		(*c)[containerID] = &Issues{}
+		(*c)[containerName] = &Issues{}
+		issues = (*c)[containerName]
 	}
 	if cSS.CPUPercentage < mMA.Min {
-		(*c)[containerID].AboveMinUtilisationIssue("CPU", cSS.CPUPercentage)
+		issues.AboveMinUtilisationIssue("CPU", cSS.CPUPercentage, containerID)
 	} else if cSS.CPUPercentage > mMA.Max {
-		(*c)[containerID].AboveMaxUtilisationIssue("CPU", cSS.CPUPercentage)
+		issues.AboveMaxUtilisationIssue("CPU", cSS.CPUPercentage, containerID)
 	}
 }
 
-func (c *Collector) MemoryIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerID string) {
-	_, ok := (*c)[containerID]
+func (c *Collector) MemoryIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerName, containerID string) {
+	issues, ok := (*c)[containerName]
 	if !ok {
-		(*c)[containerID] = &Issues{}
+		(*c)[containerName] = &Issues{}
+		issues = (*c)[containerName]
 	}
 	if cSS.MemoryPercentage < mMA.Min {
-		(*c)[containerID].AboveMinUtilisationIssue("Memory", cSS.MemoryPercentage)
+		issues.AboveMinUtilisationIssue("Memory", cSS.MemoryPercentage, containerID)
 	} else if cSS.MemoryPercentage > mMA.Max {
-		(*c)[containerID].AboveMaxUtilisationIssue("Memory", cSS.MemoryPercentage)
+		issues.AboveMaxUtilisationIssue("Memory", cSS.MemoryPercentage, containerID)
 	}
 }
 
-func (c *Collector) BlockReadIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerID string) {
-	_, ok := (*c)[containerID]
+func (c *Collector) BlockReadIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerName, containerID string) {
+	issues, ok := (*c)[containerName]
 	if !ok {
-		(*c)[containerID] = &Issues{}
+		(*c)[containerName] = &Issues{}
+		issues = (*c)[containerName]
 	}
 	if cSS.BlockRead < mMA.Min {
-		(*c)[containerID].AboveMinUtilisationIssue("BlockRead", cSS.BlockRead)
+		issues.AboveMinUtilisationIssue("BlockRead", cSS.BlockRead, containerID)
 	} else if cSS.BlockRead > mMA.Max {
-		(*c)[containerID].AboveMaxUtilisationIssue("BlockRead", cSS.BlockRead)
+		issues.AboveMaxUtilisationIssue("BlockRead", cSS.BlockRead, containerID)
 	}
 }
 
-func (c *Collector) BlockWriteIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerID string) {
-	_, ok := (*c)[containerID]
+func (c *Collector) BlockWriteIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerName, containerID string) {
+	issues, ok := (*c)[containerName]
 	if !ok {
-		(*c)[containerID] = &Issues{}
+		(*c)[containerName] = &Issues{}
+		issues = (*c)[containerName]
 	}
 	if cSS.BlockWrite < mMA.Min {
-		(*c)[containerID].AboveMinUtilisationIssue("BlockWrite", cSS.BlockWrite)
+		issues.AboveMinUtilisationIssue("BlockWrite", cSS.BlockWrite, containerID)
 	} else if cSS.BlockWrite > mMA.Max {
-		(*c)[containerID].AboveMaxUtilisationIssue("BlockWrite", cSS.BlockWrite)
+		issues.AboveMaxUtilisationIssue("BlockWrite", cSS.BlockWrite, containerID)
 	}
 }
 
-func (c *Collector) NetworkRxIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerID string) {
-	_, ok := (*c)[containerID]
+func (c *Collector) NetworkRxIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerName, containerID string) {
+	issues, ok := (*c)[containerName]
 	if !ok {
-		(*c)[containerID] = &Issues{}
+		(*c)[containerName] = &Issues{}
+		issues = (*c)[containerName]
 	}
 	if cSS.NetworkRx < mMA.Min {
-		(*c)[containerID].AboveMinUtilisationIssue("NetworkRx", cSS.NetworkRx)
+		issues.AboveMinUtilisationIssue("NetworkRx", cSS.NetworkRx, containerID)
 	} else if cSS.NetworkRx > mMA.Max {
-		(*c)[containerID].AboveMaxUtilisationIssue("NetworkRx", cSS.NetworkRx)
+		issues.AboveMaxUtilisationIssue("NetworkRx", cSS.NetworkRx, containerID)
 	}
 }
 
-func (c *Collector) NetworkTxIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerID string) {
-	_, ok := (*c)[containerID]
+func (c *Collector) NetworkTxIssueCollector(mMA *MinMaxAllocation, cSS *ContainerSetStatistics, containerName, containerID string) {
+	issues, ok := (*c)[containerName]
 	if !ok {
-		(*c)[containerID] = &Issues{}
+		(*c)[containerName] = &Issues{}
+		issues = (*c)[containerName]
 	}
 	if cSS.NetworkTx < mMA.Min {
-		(*c)[containerID].AboveMinUtilisationIssue("NetworkTx", cSS.NetworkTx)
+		issues.AboveMinUtilisationIssue("NetworkTx", cSS.NetworkTx, containerID)
 	} else if cSS.NetworkTx > mMA.Max {
-		(*c)[containerID].AboveMaxUtilisationIssue("NetworkTx", cSS.NetworkTx)
+		issues.AboveMaxUtilisationIssue("NetworkTx", cSS.NetworkTx, containerID)
 	}
 }

@@ -52,7 +52,7 @@ func NewDocNoc(flags *Flags) *DocNoc {
 	}
 }
 
-func (dN *DocNoc) StartScrubbing() {
+func (dN *DocNoc) StartScrubbingDefault() {
 	ctx := context.Background()
 	containers, err := dN.Client.ContainerList(ctx, types.ContainerListOptions{})
 	if err != nil {
@@ -62,7 +62,7 @@ func (dN *DocNoc) StartScrubbing() {
 		inExclude := containerNameInExclude(container.Names[0], dN.DocNocConfig.Exclude)
 		if !inExclude {
 			cSS := Watcher(ctx, dN.Client, container.ID, false)
-			dN.ScrubMinMaxEvaluate(cSS, container.ID)
+			dN.ScrubMinMaxEvaluate(cSS, container.Names[0], container.ID)
 		}
 	}
 	dN.OutputResultsForSection("default")
@@ -77,13 +77,13 @@ func containerNameInExclude(name string, Exclude []string) bool {
 	return false
 }
 
-func (dN *DocNoc) ScrubMinMaxEvaluate(cSS *ContainerSetStatistics, containerID string) {
-	dN.Collector.CPUIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.CPU, cSS, containerID)
-	dN.Collector.MemoryIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.Memory, cSS, containerID)
-	dN.Collector.BlockWriteIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockWrite, cSS, containerID)
-	dN.Collector.BlockReadIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockRead, cSS, containerID)
-	dN.Collector.NetworkRxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkRx, cSS, containerID)
-	dN.Collector.NetworkTxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkTx, cSS, containerID)
+func (dN *DocNoc) ScrubMinMaxEvaluate(cSS *ContainerSetStatistics, containerName, containerID string) {
+	dN.Collector.CPUIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.CPU, cSS, containerName, containerID)
+	dN.Collector.MemoryIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.Memory, cSS, containerName, containerID)
+	dN.Collector.BlockWriteIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockWrite, cSS, containerName, containerID)
+	dN.Collector.BlockReadIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockRead, cSS, containerName, containerID)
+	dN.Collector.NetworkRxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkRx, cSS, containerName, containerID)
+	dN.Collector.NetworkTxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkTx, cSS, containerName, containerID)
 }
 
 func (dN *DocNoc) OutputResultsForSection(section string) {
@@ -93,7 +93,10 @@ func (dN *DocNoc) OutputResultsForSection(section string) {
 		printContainerName(key, issLen)
 
 		if issLen != 0 {
-			printIssues(issues)
+			for containerID, issueList := range *issues {
+				printContainerID(containerID)
+				printIssues(issueList)
+			}
 		}
 	}
 }
