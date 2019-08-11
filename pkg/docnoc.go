@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/go-yaml/yaml"
@@ -59,16 +60,29 @@ func (dN *DocNoc) StartScrubbing() {
 		fmt.Println("🔥: Can't get a list of containers", err)
 	}
 	for _, container := range containers {
-		cSS := Watcher(ctx, dN.Client, container.ID, false)
-		dN.ScrubMinMaxEvaluate(cSS, container.ID)
+		inExclude := containerNameInExclude(container.Names[0], dN.DocNocConfig.Exclude)
+		if !inExclude {
+			cSS := Watcher(ctx, dN.Client, container.ID, false)
+			dN.ScrubMinMaxEvaluate(cSS, container.ID)
+		}
 	}
 }
 
+func containerNameInExclude(name string, Exclude []string) bool {
+	for _, v := range Exclude {
+		if v == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (dN *DocNoc) ScrubMinMaxEvaluate(cSS *ContainerSetStatistics, containerID string) {
-	dN.Collector.CPUIssueCollector(&dN.DocNocConfig.ExcludeContainerConfig.CPU, cSS, containerID)
-	dN.Collector.MemoryIssueCollector(&dN.DocNocConfig.ExcludeContainerConfig.Memory, cSS, containerID)
-	dN.Collector.BlockWriteIssueCollector(&dN.DocNocConfig.ExcludeContainerConfig.BlockWrite, cSS, containerID)
-	dN.Collector.BlockReadIssueCollector(&dN.DocNocConfig.ExcludeContainerConfig.BlockRead, cSS, containerID)
-	dN.Collector.NetworkRxIssueCollector(&dN.DocNocConfig.ExcludeContainerConfig.NetworkRx, cSS, containerID)
-	dN.Collector.NetworkTxIssueCollector(&dN.DocNocConfig.ExcludeContainerConfig.NetworkTx, cSS, containerID)
+	dN.Collector.CPUIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.CPU, cSS, containerID)
+	dN.Collector.MemoryIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.Memory, cSS, containerID)
+	dN.Collector.BlockWriteIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockWrite, cSS, containerID)
+	dN.Collector.BlockReadIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockRead, cSS, containerID)
+	dN.Collector.NetworkRxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkRx, cSS, containerID)
+	dN.Collector.NetworkTxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkTx, cSS, containerID)
+	spew.Dump(dN.Collector)
 }

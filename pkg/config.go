@@ -22,21 +22,10 @@ type (
 		Status     []string         `yaml:"status"`
 	}
 
-	ExcludeContainerConfig struct {
-		CPU        MinMaxAllocation `yaml:"cpu"`
-		Memory     MinMaxAllocation `yaml:"memory"`
-		Disk       MinMaxAllocation `yaml:"disk"`
-		BlockWrite MinMaxAllocation `yaml:"block_write"`
-		BlockRead  MinMaxAllocation `yaml:"block_read"`
-		NetworkRx  MinMaxAllocation `yaml:"network_rx"`
-		NetworkTx  MinMaxAllocation `yaml:"network_tx"`
-		Status     []string         `yaml:"status"`
-		Exclude    []string         `yaml:"exclude"`
-	}
-
 	Config struct {
-		ExcludeContainerConfig `yaml:"default"`
+		DefaultContainerConfig ContainerConfig            `yaml:"default"`
 		ContainersConfig       map[string]ContainerConfig `yaml:"containers"`
+		Exclude                []string                   `yaml:"exclude"`
 	}
 
 	DocNocConfig struct {
@@ -51,8 +40,8 @@ func NewMinMaxAllocation() MinMaxAllocation {
 	}
 }
 
-func NewExcludeContainerConfig() ExcludeContainerConfig {
-	return ExcludeContainerConfig{
+func NewDefaultContainerConfig() ContainerConfig {
+	return ContainerConfig{
 		CPU:        NewMinMaxAllocation(),
 		Memory:     NewMinMaxAllocation(),
 		Disk:       NewMinMaxAllocation(),
@@ -65,8 +54,9 @@ func NewExcludeContainerConfig() ExcludeContainerConfig {
 
 func NewConfig() Config {
 	return Config{
-		ExcludeContainerConfig: NewExcludeContainerConfig(),
+		DefaultContainerConfig: NewDefaultContainerConfig(),
 		ContainersConfig:       map[string]ContainerConfig{},
+		Exclude:                []string{},
 	}
 }
 
