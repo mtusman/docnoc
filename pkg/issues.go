@@ -8,12 +8,19 @@ type Issue struct {
 
 type Issues map[string][]*Issue
 
-func (i *Issues) AboveMaxUtilisationIssue(group string, amount float64, containerID string) {
-	message := fmt.Sprintf("%s is over utilised at %0.2f%%", group, amount)
-	(*i)[containerID] = append((*i)[containerID], &Issue{message})
-}
+func (i *Issues) MinMaxUtilisationIssue(cSV float64, cSN, cID string, underUtil bool) {
+	var msg string
+	issName := mapContainerStatNameToIssueName[cSN]
+	if underUtil {
+		msg = fmt.Sprintf("%s is under utilised at %0.2f", issName, cSV)
+	} else {
+		msg = fmt.Sprintf("%s is over utilised at %0.2f", issName, cSV)
+	}
 
-func (i *Issues) AboveMinUtilisationIssue(group string, amount float64, containerID string) {
-	message := fmt.Sprintf("%s is under utilised at %0.2f%%", group, amount)
-	(*i)[containerID] = append((*i)[containerID], &Issue{message})
+	for _, value := range ContainerStatNamePercs {
+		if issName == value {
+			msg += "%"
+		}
+	}
+	(*i)[cID] = append((*i)[cID], &Issue{msg})
 }

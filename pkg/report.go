@@ -35,11 +35,11 @@ func printContainerID(ID string) {
 	cIDO.Println("    🐳 " + ID)
 }
 
-func printIssues(issues []*Issue) {
+func printIssuesList(issues []*Issue) {
 	for _, issue := range issues {
 		printIssue(issue.message)
 	}
 }
 func printIssue(message string) {
-	iO.Println("\t", message)
+	iO.Println("\t😱", message)
 }

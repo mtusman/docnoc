@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"reflect"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -62,7 +63,7 @@ func (dN *DocNoc) StartScrubbingDefault() {
 		inExclude := containerNameInExclude(container.Names[0], dN.DocNocConfig.Exclude)
 		if !inExclude {
 			cSS := Watcher(ctx, dN.Client, container.ID, false)
-			dN.ScrubMinMaxEvaluate(cSS, container.Names[0], container.ID)
+			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.DefaultContainerConfig, cSS, container.Names[0], container.ID)
 		}
 	}
 	dN.OutputResultsForSection("default")
@@ -77,13 +78,14 @@ func containerNameInExclude(name string, Exclude []string) bool {
 	return false
 }
 
-func (dN *DocNoc) ScrubMinMaxEvaluate(cSS *ContainerSetStatistics, containerName, containerID string) {
-	dN.Collector.CPUIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.CPU, cSS, containerName, containerID)
-	dN.Collector.MemoryIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.Memory, cSS, containerName, containerID)
-	dN.Collector.BlockWriteIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockWrite, cSS, containerName, containerID)
-	dN.Collector.BlockReadIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockRead, cSS, containerName, containerID)
-	dN.Collector.NetworkRxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkRx, cSS, containerName, containerID)
-	dN.Collector.NetworkTxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkTx, cSS, containerName, containerID)
+func scrubMinMaxEvaluate(clctr *Collector, cC ContainerConfig, cSS *ContainerSetStatistics, containerName, containerID string) {
+	v := reflect.ValueOf(*cSS)
+	typeOfcSS := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		clctr.MinMaxIssueCollector(cC, v.Field(i).Interface().(float64), typeOfcSS.Field(i).Name, containerName, containerID)
+	}
+
 }
 
 func (dN *DocNoc) OutputResultsForSection(section string) {
@@ -95,7 +97,7 @@ func (dN *DocNoc) OutputResultsForSection(section string) {
 		if issLen != 0 {
 			for containerID, issueList := range *issues {
 				printContainerID(containerID)
-				printIssues(issueList)
+				printIssuesList(issueList)
 			}
 		}
 	}

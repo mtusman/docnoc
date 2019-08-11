@@ -8,8 +8,6 @@ docnoc:
         status:
             - stopped
             - started
-        exclude:
-            - web
     containers:
         web:
             cpu: 

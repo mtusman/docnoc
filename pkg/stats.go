@@ -6,8 +6,21 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
+var (
+	mapContainerStatNameToIssueName = map[string]string{
+		"CPUPercentage":    "CPU",
+		"MemoryPercentage": "Memory",
+		"BlockWriteMB":     "Block I",
+		"BlockReadMB":      "Block O",
+		"NetworkRxMB":      "Network I",
+		"NetworkTxMB":      "Network O",
+	}
+
+	ContainerStatNamePercs = []string{"CPU", "Memory"}
+)
+
 type ContainerSetStatistics struct {
-	CPUPercentage, MemoryPercentage, BlockWrite, BlockRead, NetworkRx, NetworkTx float64
+	CPUPercentage, MemoryPercentage, BlockWriteMB, BlockReadMB, NetworkRxMB, NetworkTxMB float64
 }
 
 func calculateCPUPercentUnix(previousCPU, previousSystem uint64, v *types.StatsJSON) float64 {
