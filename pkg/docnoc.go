@@ -7,7 +7,6 @@ import (
 	"os"
 	"path"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/go-yaml/yaml"
@@ -66,6 +65,7 @@ func (dN *DocNoc) StartScrubbing() {
 			dN.ScrubMinMaxEvaluate(cSS, container.ID)
 		}
 	}
+	dN.OutputResultsForSection("default")
 }
 
 func containerNameInExclude(name string, Exclude []string) bool {
@@ -84,5 +84,16 @@ func (dN *DocNoc) ScrubMinMaxEvaluate(cSS *ContainerSetStatistics, containerID s
 	dN.Collector.BlockReadIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.BlockRead, cSS, containerID)
 	dN.Collector.NetworkRxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkRx, cSS, containerID)
 	dN.Collector.NetworkTxIssueCollector(&dN.DocNocConfig.DefaultContainerConfig.NetworkTx, cSS, containerID)
-	spew.Dump(dN.Collector)
+}
+
+func (dN *DocNoc) OutputResultsForSection(section string) {
+	printTitle(section)
+	for key, issues := range *(dN.Collector) {
+		issLen := len(*issues)
+		printContainerName(key, issLen)
+
+		if issLen != 0 {
+			printIssues(issues)
+		}
+	}
 }
