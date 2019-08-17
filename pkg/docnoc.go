@@ -59,28 +59,52 @@ func (dN *DocNoc) StartScrubbingDefault() {
 	if err != nil {
 		fmt.Println("🔥: Can't get a list of containers", err)
 	}
+
+	if dN.DocNocConfig.Config.SlackWebhook != "" {
+		PostInitSlackMessage(dN.DocNocConfig.Config.SlackWebhook)
+	}
+
 	for _, container := range containers {
 		cN := container.Names[0][1:]
 		inExclude := containerNameInExclude(cN, dN.DocNocConfig.Exclude)
 		_, inSeperateConfig := dN.DocNocConfig.ContainersConfig[cN]
-		if !inExclude || inSeperateConfig {
+		if inSeperateConfig {
+			cSS := Watcher(ctx, dN.Client, container.ID, false)
+			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.ContainersConfig[cN], cSS, cN, container.ID)
+		} else if !inExclude {
 			cSS := Watcher(ctx, dN.Client, container.ID, false)
 			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.DefaultContainerConfig, cSS, cN, container.ID)
 		}
 	}
 
+	// for key, _ := range dN.DocNocConfig.ContainersConfig {
+	// 	val, _ := dN.Collector[key]
+	// 	PrintTitle(key)
+	// 	dN.outputResultsForContainerNameSection(key, val)
+	// }
+}
+
+func (dN *DocNoc) ProcessReport() {
 	PrintTitle("default")
 	for key, issues := range dN.Collector {
 		inExclude := containerNameInExclude(key, dN.DocNocConfig.Exclude)
 		if !inExclude {
-			dN.outputResultsForContainerNameSection(key, issues)
+			dN.processReportForApp(key, issues)
 		}
 	}
 
 	for key, _ := range dN.DocNocConfig.ContainersConfig {
-		val, _ := dN.Collector[key]
+		issues, _ := dN.Collector[key]
 		PrintTitle(key)
-		dN.outputResultsForContainerNameSection(key, val)
+		dN.processReportForApp(key, issues)
+	}
+}
+
+func (dN *DocNoc) processReportForApp(key string, issues *Issues) {
+	numErrs := len((*issues).IssuesList)
+	PrintContainerName(key, numErrs)
+	if numErrs != 0 {
+		PrintIssuesList(dN, key, issues.containerID, issues.IssuesList)
 	}
 }
 
@@ -96,21 +120,8 @@ func containerNameInExclude(name string, Exclude []string) bool {
 func scrubMinMaxEvaluate(clctr Collector, cC ContainerConfig, cSS *ContainerSetStatistics, containerName, containerID string) {
 	v := reflect.ValueOf(*cSS)
 	typeOfcSS := v.Type()
-
 	for i := 0; i < v.NumField(); i++ {
 		clctr.MinMaxIssueCollector(cC, v.Field(i).Interface().(float64), typeOfcSS.Field(i).Name, containerName, containerID)
 	}
 
-}
-
-func (dN *DocNoc) outputResultsForContainerNameSection(cN string, issues *Issues) {
-	issLen := len(*issues)
-	PrintContainerName(cN, issLen)
-
-	if issLen != 0 {
-		for containerID, issueList := range *issues {
-			PrintContainerID(containerID)
-			PrintIssuesList(issueList)
-		}
-	}
 }

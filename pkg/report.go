@@ -1,8 +1,11 @@
 package pkg
 
 import (
+	"fmt"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/nlopes/slack"
 
 	"github.com/fatih/color"
 )
@@ -14,6 +17,11 @@ var (
 	iO    = color.New(color.FgGreen)
 	width = 100
 )
+
+func ProcessReportForApp(key string, numErrs int) {
+	PrintContainerName(key, numErrs)
+
+}
 
 func PrintTitle(name string) {
 	tO.Println(strings.ToUpper(name))
@@ -31,15 +39,30 @@ func PrintContainerName(name string, numErrs int) {
 	cNO.Println(keyMsg + space + emoji)
 }
 
-func PrintContainerID(ID string) {
-	cIDO.Println("    🐳 " + ID)
-}
-
-func PrintIssuesList(issues []*Issue) {
+func PrintIssuesList(dN *DocNoc, cN, cID string, issues []*Issue) {
+	cIDO.Println("    🐳 " + cID)
 	for _, issue := range issues {
-		PrintIssue(issue.message)
+		PrintIssue(issue.Message)
+		slackWebhook := dN.DocNocConfig.SlackWebhook
+		if slackWebhook != "" && !issue.Processed {
+			slack.PostWebhook(slackWebhook, &slack.WebhookMessage{
+				Username:  "docker",
+				IconEmoji: ":whale:",
+				Attachments: []slack.Attachment{
+					slack.Attachment{
+						Title:      fmt.Sprintf(":package: Container %s", cN),
+						Text:       fmt.Sprintf("Container `%s` experienced the following issue: %s", cN, issue.Message),
+						Footer:     cID,
+						Color:      "danger",
+						MarkdownIn: []string{"text"},
+					},
+				},
+			})
+		}
+		issue.Processed = true
 	}
 }
+
 func PrintIssue(message string) {
 	iO.Println("\t😱", message)
 }

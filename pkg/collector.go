@@ -13,8 +13,13 @@ func (c *Collector) MinMaxIssueCollector(cC ContainerConfig, cSV float64, cSN, c
 	}
 	issues, ok := (*c)[cN]
 	if !ok {
-		(*c)[cN] = &Issues{}
+		(*c)[cN] = &Issues{
+			containerID: cID,
+		}
 		issues = (*c)[cN]
+	}
+	if mapContainerStatNameToType[cSN].Min == 0 && mapContainerStatNameToType[cSN].Max == 0 {
+		return
 	}
 	if cSV < mapContainerStatNameToType[cSN].Min {
 		issues.MinMaxUtilisationIssue(cSV, cSN, cID, true)

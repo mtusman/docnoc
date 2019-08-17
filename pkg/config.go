@@ -26,6 +26,7 @@ type (
 		DefaultContainerConfig ContainerConfig            `yaml:"default"`
 		ContainersConfig       map[string]ContainerConfig `yaml:"containers"`
 		Exclude                []string                   `yaml:"exclude"`
+		SlackWebhook           string                     `yaml:"slack_webhook"`
 	}
 
 	DocNocConfig struct {

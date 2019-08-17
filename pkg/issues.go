@@ -3,10 +3,14 @@ package pkg
 import "fmt"
 
 type Issue struct {
-	message string
+	Message   string
+	Processed bool
 }
 
-type Issues map[string][]*Issue
+type Issues struct {
+	containerID string
+	IssuesList  []*Issue
+}
 
 func (i *Issues) MinMaxUtilisationIssue(cSV float64, cSN, cID string, underUtil bool) {
 	var msg string
@@ -20,7 +24,10 @@ func (i *Issues) MinMaxUtilisationIssue(cSV float64, cSN, cID string, underUtil 
 	for _, value := range ContainerStatNamePercs {
 		if issName == value {
 			msg += "%"
+			(*i).IssuesList = append((*i).IssuesList, &Issue{Message: msg, Processed: false})
+			return
 		}
 	}
-	(*i)[cID] = append((*i)[cID], &Issue{msg})
+	msg += "MB"
+	(*i).IssuesList = append((*i).IssuesList, &Issue{Message: msg})
 }

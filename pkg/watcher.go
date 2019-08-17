@@ -43,8 +43,8 @@ func Watcher(ctx context.Context, cli *client.Client, containerID string, stream
 	return &ContainerSetStatistics{
 		CPUPercentage:    cpuPerc,
 		MemoryPercentage: memPerc,
-		BlockReadMB:      float64(blkRead),
-		BlockWriteMB:     float64(blkWrite),
+		BlockReadMB:      float64(blkRead / 100000),
+		BlockWriteMB:     float64(blkWrite / 100000),
 		NetworkRxMB:      netRx,
 		NetworkTxMB:      netTx,
 	}

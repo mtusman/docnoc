@@ -1,10 +1,12 @@
 docnoc:
     default:
         cpu:
-            min: 10
+            min: 0
             max: 180
         memory:
             max: 90
+        block_write:
+            max: 6
         status:
             - stopped
             - started
@@ -13,5 +15,4 @@ docnoc:
             cpu: 
                 min: 30
                 max: 200
-    exclude:
-        - web
+    slack_webhook: https://hooks.slack.com/services/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
