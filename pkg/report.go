@@ -15,11 +15,11 @@ var (
 	width = 100
 )
 
-func printTitle(name string) {
+func PrintTitle(name string) {
 	tO.Println(strings.ToUpper(name))
 }
 
-func printContainerName(name string, numErrs int) {
+func PrintContainerName(name string, numErrs int) {
 	keyMsg := "  \u2022 " + name
 	space := strings.Repeat(".", width-utf8.RuneCountInString(keyMsg))
 	var emoji string
@@ -31,15 +31,15 @@ func printContainerName(name string, numErrs int) {
 	cNO.Println(keyMsg + space + emoji)
 }
 
-func printContainerID(ID string) {
+func PrintContainerID(ID string) {
 	cIDO.Println("    🐳 " + ID)
 }
 
-func printIssuesList(issues []*Issue) {
+func PrintIssuesList(issues []*Issue) {
 	for _, issue := range issues {
-		printIssue(issue.message)
+		PrintIssue(issue.message)
 	}
 }
-func printIssue(message string) {
+func PrintIssue(message string) {
 	iO.Println("\t😱", message)
 }

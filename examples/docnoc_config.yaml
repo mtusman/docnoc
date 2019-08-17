@@ -13,3 +13,5 @@ docnoc:
             cpu: 
                 min: 30
                 max: 200
+    exclude:
+        - web

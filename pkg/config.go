@@ -33,28 +33,28 @@ type (
 	}
 )
 
-func NewMinMaxAllocation() MinMaxAllocation {
+func newMinMaxAllocation() MinMaxAllocation {
 	return MinMaxAllocation{
 		Min: defaultMinAllocation,
 		Max: defaultMaxAllocation,
 	}
 }
 
-func NewDefaultContainerConfig() ContainerConfig {
+func newDefaultContainerConfig() ContainerConfig {
 	return ContainerConfig{
-		CPU:        NewMinMaxAllocation(),
-		Memory:     NewMinMaxAllocation(),
-		Disk:       NewMinMaxAllocation(),
-		BlockRead:  NewMinMaxAllocation(),
-		BlockWrite: NewMinMaxAllocation(),
-		NetworkRx:  NewMinMaxAllocation(),
-		NetworkTx:  NewMinMaxAllocation(),
+		CPU:        newMinMaxAllocation(),
+		Memory:     newMinMaxAllocation(),
+		Disk:       newMinMaxAllocation(),
+		BlockRead:  newMinMaxAllocation(),
+		BlockWrite: newMinMaxAllocation(),
+		NetworkRx:  newMinMaxAllocation(),
+		NetworkTx:  newMinMaxAllocation(),
 	}
 }
 
-func NewConfig() Config {
+func newConfig() Config {
 	return Config{
-		DefaultContainerConfig: NewDefaultContainerConfig(),
+		DefaultContainerConfig: newDefaultContainerConfig(),
 		ContainersConfig:       map[string]ContainerConfig{},
 		Exclude:                []string{},
 	}
@@ -62,6 +62,6 @@ func NewConfig() Config {
 
 func NewDocNocConfig() DocNocConfig {
 	return DocNocConfig{
-		Config: NewConfig(),
+		Config: newConfig(),
 	}
 }

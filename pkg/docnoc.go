@@ -17,7 +17,7 @@ type DocNoc struct {
 	Client       *client.Client
 	DocNocConfig *DocNocConfig
 	Flags        *Flags
-	Collector    *Collector
+	Collector    Collector
 }
 
 func NewDocNoc(flags *Flags) *DocNoc {
@@ -49,7 +49,7 @@ func NewDocNoc(flags *Flags) *DocNoc {
 		Client:       cli,
 		DocNocConfig: &cfg,
 		Flags:        flags,
-		Collector:    &Collector{},
+		Collector:    Collector{},
 	}
 }
 
@@ -60,13 +60,28 @@ func (dN *DocNoc) StartScrubbingDefault() {
 		fmt.Println("🔥: Can't get a list of containers", err)
 	}
 	for _, container := range containers {
-		inExclude := containerNameInExclude(container.Names[0], dN.DocNocConfig.Exclude)
-		if !inExclude {
+		cN := container.Names[0][1:]
+		inExclude := containerNameInExclude(cN, dN.DocNocConfig.Exclude)
+		_, inSeperateConfig := dN.DocNocConfig.ContainersConfig[cN]
+		if !inExclude || inSeperateConfig {
 			cSS := Watcher(ctx, dN.Client, container.ID, false)
-			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.DefaultContainerConfig, cSS, container.Names[0], container.ID)
+			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.DefaultContainerConfig, cSS, cN, container.ID)
 		}
 	}
-	dN.OutputResultsForSection("default")
+
+	PrintTitle("default")
+	for key, issues := range dN.Collector {
+		inExclude := containerNameInExclude(key, dN.DocNocConfig.Exclude)
+		if !inExclude {
+			dN.outputResultsForContainerNameSection(key, issues)
+		}
+	}
+
+	for key, _ := range dN.DocNocConfig.ContainersConfig {
+		val, _ := dN.Collector[key]
+		PrintTitle(key)
+		dN.outputResultsForContainerNameSection(key, val)
+	}
 }
 
 func containerNameInExclude(name string, Exclude []string) bool {
@@ -78,7 +93,7 @@ func containerNameInExclude(name string, Exclude []string) bool {
 	return false
 }
 
-func scrubMinMaxEvaluate(clctr *Collector, cC ContainerConfig, cSS *ContainerSetStatistics, containerName, containerID string) {
+func scrubMinMaxEvaluate(clctr Collector, cC ContainerConfig, cSS *ContainerSetStatistics, containerName, containerID string) {
 	v := reflect.ValueOf(*cSS)
 	typeOfcSS := v.Type()
 
@@ -88,17 +103,14 @@ func scrubMinMaxEvaluate(clctr *Collector, cC ContainerConfig, cSS *ContainerSet
 
 }
 
-func (dN *DocNoc) OutputResultsForSection(section string) {
-	printTitle(section)
-	for key, issues := range *(dN.Collector) {
-		issLen := len(*issues)
-		printContainerName(key, issLen)
+func (dN *DocNoc) outputResultsForContainerNameSection(cN string, issues *Issues) {
+	issLen := len(*issues)
+	PrintContainerName(cN, issLen)
 
-		if issLen != 0 {
-			for containerID, issueList := range *issues {
-				printContainerID(containerID)
-				printIssuesList(issueList)
-			}
+	if issLen != 0 {
+		for containerID, issueList := range *issues {
+			PrintContainerID(containerID)
+			PrintIssuesList(issueList)
 		}
 	}
 }
