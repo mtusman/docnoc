@@ -8,8 +8,9 @@ type Issue struct {
 }
 
 type Issues struct {
-	containerID string
-	IssuesList  []*Issue
+	containerID, containerName string
+	IssuesList                 []*Issue
+	ActionTaken                bool
 }
 
 func (i *Issues) MinMaxUtilisationIssue(cSV float64, cSN, cID string, underUtil bool) {

@@ -1,15 +1,13 @@
 docnoc:
     default:
         cpu:
-            min: 0
+            min: 10
             max: 180
         memory:
             max: 90
         block_write:
             max: 6
-        status:
-            - stopped
-            - started
+        action: restart
     containers:
         web:
             cpu: 

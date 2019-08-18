@@ -19,7 +19,7 @@ type (
 		BlockRead  MinMaxAllocation `yaml:"block_read"`
 		NetworkRx  MinMaxAllocation `yaml:"network_rx"`
 		NetworkTx  MinMaxAllocation `yaml:"network_tx"`
-		Status     []string         `yaml:"status"`
+		Action     string           `yaml:"action"`
 	}
 
 	Config struct {

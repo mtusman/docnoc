@@ -14,7 +14,7 @@ var (
 	tO    = color.New(color.FgBlue).Add(color.Bold)
 	cNO   = color.New(color.FgGreen)
 	cIDO  = color.New(color.FgYellow)
-	iO    = color.New(color.FgGreen)
+	IO    = color.New(color.FgGreen)
 	width = 100
 )
 
@@ -46,8 +46,8 @@ func PrintIssuesList(dN *DocNoc, cN, cID string, issues []*Issue) {
 		slackWebhook := dN.DocNocConfig.SlackWebhook
 		if slackWebhook != "" && !issue.Processed {
 			slack.PostWebhook(slackWebhook, &slack.WebhookMessage{
-				Username:  "docker",
-				IconEmoji: ":whale:",
+				Username:  Username,
+				IconEmoji: IconEmoji,
 				Attachments: []slack.Attachment{
 					slack.Attachment{
 						Title:      fmt.Sprintf(":package: Container %s", cN),
@@ -64,5 +64,5 @@ func PrintIssuesList(dN *DocNoc, cN, cID string, issues []*Issue) {
 }
 
 func PrintIssue(message string) {
-	iO.Println("\t😱", message)
+	IO.Println("\t😱", message)
 }

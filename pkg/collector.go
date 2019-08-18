@@ -14,7 +14,8 @@ func (c *Collector) MinMaxIssueCollector(cC ContainerConfig, cSV float64, cSN, c
 	issues, ok := (*c)[cN]
 	if !ok {
 		(*c)[cN] = &Issues{
-			containerID: cID,
+			containerID:   cID,
+			containerName: cN,
 		}
 		issues = (*c)[cN]
 	}

@@ -6,10 +6,15 @@ import (
 	"github.com/nlopes/slack"
 )
 
+var (
+	Username  = "docker"
+	IconEmoji = ":whale:"
+)
+
 func PostInitSlackMessage(webhook string) {
 	msg := &slack.WebhookMessage{
-		Username:  "docker",
-		IconEmoji: ":whale:",
+		Username:  Username,
+		IconEmoji: IconEmoji,
 		Text:      "DocNoc has started scanning",
 	}
 	if err := slack.PostWebhook(webhook, msg); err != nil {

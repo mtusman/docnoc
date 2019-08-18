@@ -18,6 +18,7 @@ type DocNoc struct {
 	DocNocConfig *DocNocConfig
 	Flags        *Flags
 	Collector    Collector
+	Context      context.Context
 }
 
 func NewDocNoc(flags *Flags) *DocNoc {
@@ -50,12 +51,12 @@ func NewDocNoc(flags *Flags) *DocNoc {
 		DocNocConfig: &cfg,
 		Flags:        flags,
 		Collector:    Collector{},
+		Context:      context.Background(),
 	}
 }
 
 func (dN *DocNoc) StartScrubbingDefault() {
-	ctx := context.Background()
-	containers, err := dN.Client.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := dN.Client.ContainerList(dN.Context, types.ContainerListOptions{})
 	if err != nil {
 		fmt.Println("🔥: Can't get a list of containers", err)
 	}
@@ -69,19 +70,13 @@ func (dN *DocNoc) StartScrubbingDefault() {
 		inExclude := containerNameInExclude(cN, dN.DocNocConfig.Exclude)
 		_, inSeperateConfig := dN.DocNocConfig.ContainersConfig[cN]
 		if inSeperateConfig {
-			cSS := Watcher(ctx, dN.Client, container.ID, false)
+			cSS := Watcher(dN.Context, dN.Client, container.ID, false)
 			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.ContainersConfig[cN], cSS, cN, container.ID)
 		} else if !inExclude {
-			cSS := Watcher(ctx, dN.Client, container.ID, false)
+			cSS := Watcher(dN.Context, dN.Client, container.ID, false)
 			scrubMinMaxEvaluate(dN.Collector, dN.DocNocConfig.DefaultContainerConfig, cSS, cN, container.ID)
 		}
 	}
-
-	// for key, _ := range dN.DocNocConfig.ContainersConfig {
-	// 	val, _ := dN.Collector[key]
-	// 	PrintTitle(key)
-	// 	dN.outputResultsForContainerNameSection(key, val)
-	// }
 }
 
 func (dN *DocNoc) ProcessReport() {
@@ -89,23 +84,43 @@ func (dN *DocNoc) ProcessReport() {
 	for key, issues := range dN.Collector {
 		inExclude := containerNameInExclude(key, dN.DocNocConfig.Exclude)
 		if !inExclude {
-			dN.processReportForApp(key, issues)
+			dN.processReportForApp(key, issues, dN.DocNocConfig.DefaultContainerConfig)
 		}
 	}
 
-	for key, _ := range dN.DocNocConfig.ContainersConfig {
-		issues, _ := dN.Collector[key]
-		PrintTitle(key)
-		dN.processReportForApp(key, issues)
+	for key, cC := range dN.DocNocConfig.ContainersConfig {
+		issues, ok := dN.Collector[key]
+		if ok {
+			PrintTitle(key)
+			dN.processReportForApp(key, issues, cC)
+		}
 	}
 }
 
-func (dN *DocNoc) processReportForApp(key string, issues *Issues) {
+func (dN *DocNoc) processReportForApp(key string, issues *Issues, cC ContainerConfig) {
 	numErrs := len((*issues).IssuesList)
 	PrintContainerName(key, numErrs)
 	if numErrs != 0 {
 		PrintIssuesList(dN, key, issues.containerID, issues.IssuesList)
+		if issues.ActionTaken == false {
+			if cC.Action == "stop" {
+				err := dN.Client.ContainerStop(dN.Context, issues.containerID, nil)
+				if err != nil {
+					fmt.Println("🔥: Failed to stop container with ID:", issues.containerID, err)
+				} else {
+					IO.Println("\t🚒 Stopped container with ID:", issues.containerID)
+				}
+			} else if cC.Action == "restart" {
+				err := dN.Client.ContainerRestart(dN.Context, issues.containerID, nil)
+				if err != nil {
+					fmt.Println("🔥: Failed to restart container with ID:", issues.containerID, err)
+				} else {
+					IO.Println("\t🚒 Restarted container with ID:", issues.containerID)
+				}
+			}
+		}
 	}
+
 }
 
 func containerNameInExclude(name string, Exclude []string) bool {
