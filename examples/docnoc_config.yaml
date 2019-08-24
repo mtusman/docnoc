@@ -7,7 +7,7 @@ docnoc:
             max: 90
         block_write:
             max: 6
-        action: restart
+        action: stop
     containers:
         web:
             cpu: 

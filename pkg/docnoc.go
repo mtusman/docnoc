@@ -24,7 +24,7 @@ type DocNoc struct {
 func NewDocNoc(flags *Flags) *DocNoc {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.39"))
 	if err != nil {
-		fmt.Println("🔥: Can't connect to docker client")
+		fmt.Println("🔥: Failed to create docker client")
 		os.Exit(1)
 	}
 
@@ -37,14 +37,15 @@ func NewDocNoc(flags *Flags) *DocNoc {
 	}
 
 	if err != nil {
-		fmt.Println("🔥: Unable to read config file")
+		fmt.Println("🔥: Unable to read docnoc config file")
 		os.Exit(1)
 	}
 
 	cfg := NewDocNocConfig()
 	err = yaml.Unmarshal(f, &cfg)
 	if err != nil {
-		fmt.Println("🔥: Can't unmarshall yaml file", err)
+		fmt.Println("🔥: Can't unmarshall docnoc config file", err)
+		os.Exit(1)
 	}
 	return &DocNoc{
 		Client:       cli,
@@ -58,7 +59,8 @@ func NewDocNoc(flags *Flags) *DocNoc {
 func (dN *DocNoc) StartScrubbingDefault() {
 	containers, err := dN.Client.ContainerList(dN.Context, types.ContainerListOptions{})
 	if err != nil {
-		fmt.Println("🔥: Can't get a list of containers", err)
+		fmt.Println("🔥: Failed to get list of containers", err)
+		os.Exit(1)
 	}
 
 	if dN.DocNocConfig.Config.SlackWebhook != "" {
@@ -106,16 +108,18 @@ func (dN *DocNoc) processReportForApp(key string, issues *Issues, cC ContainerCo
 			if cC.Action == "stop" {
 				err := dN.Client.ContainerStop(dN.Context, issues.containerID, nil)
 				if err != nil {
-					fmt.Println("🔥: Failed to stop container with ID:", issues.containerID, err)
+					PostActionMessage(dN.DocNocConfig.Config.SlackWebhook, key, issues.containerID, "stop", true)
+					fmt.Println(err)
 				} else {
-					IO.Println("\t🚒 Stopped container with ID:", issues.containerID)
+					PostActionMessage(dN.DocNocConfig.Config.SlackWebhook, key, issues.containerID, "Stopped", false)
 				}
 			} else if cC.Action == "restart" {
 				err := dN.Client.ContainerRestart(dN.Context, issues.containerID, nil)
 				if err != nil {
-					fmt.Println("🔥: Failed to restart container with ID:", issues.containerID, err)
+					PostActionMessage(dN.DocNocConfig.Config.SlackWebhook, key, issues.containerID, "restart", true)
+					fmt.Println(err)
 				} else {
-					IO.Println("\t🚒 Restarted container with ID:", issues.containerID)
+					PostActionMessage(dN.DocNocConfig.Config.SlackWebhook, key, issues.containerID, "Restarted", false)
 				}
 			}
 		}
