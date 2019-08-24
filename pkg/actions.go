@@ -7,10 +7,14 @@ import (
 )
 
 var (
-	Username  = "docker"
+	// Username is the default username used to post to Slack
+	Username = "docker"
+	// IconEmoji is the default slack profile image
 	IconEmoji = ":whale:"
 )
 
+// PostInitSlackMessage is used to send an initial message to slack to confirm the webhook
+// is working
 func PostInitSlackMessage(webhook string) {
 	msg := &slack.WebhookMessage{
 		Username:  Username,
@@ -22,6 +26,8 @@ func PostInitSlackMessage(webhook string) {
 	}
 }
 
+// PostActionMessage is used to output action message to the terminal and send it the slack
+// channel
 func PostActionMessage(webhook, cN, cID, action string, errType bool) {
 	if errType {
 		IO.Println(fmt.Sprintf("\t🔥 Failed to %s container with ID: %s", action, cID))

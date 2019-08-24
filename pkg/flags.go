@@ -5,6 +5,7 @@ import (
 	"path"
 )
 
+// defaultConfigFileLocation is the deault location where the docnoc config file is stored
 var defaultConfigFileLocation string
 
 func init() {
@@ -12,12 +13,14 @@ func init() {
 	defaultConfigFileLocation = path.Join(cwd, "docnoc_config.yaml")
 }
 
+// Flags represents all the flags passed by the user
 type Flags struct {
 	ConfigFile *string
 	Detach     *bool
 	Timeout    *int
 }
 
+// NewFlags returns a new Flag configuration
 func NewFlags() *Flags {
 	return &Flags{
 		ConfigFile: stringPointer(defaultConfigFileLocation),

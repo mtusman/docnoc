@@ -9,6 +9,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
+// Watcher returns the current statistics collected for a particular container
 func Watcher(ctx context.Context, cli *client.Client, containerID string, stream bool) *ContainerSetStatistics {
 	stat, err := cli.ContainerStats(ctx, containerID, false)
 	if err != nil {

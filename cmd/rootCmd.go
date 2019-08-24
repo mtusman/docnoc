@@ -29,13 +29,15 @@ func init() {
 	)
 }
 
+// Execute is used to run the default cobra command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Sprintf("Error: Cannot start docnoc: %s", err)
+		fmt.Println("Error: Cannot start docnoc: ", err)
 		os.Exit(1)
 	}
 }
 
+// runDocNoc starts the process of scanning and outputting the report
 func runDocNoc(*cobra.Command, []string) {
 	dN := pkg.NewDocNoc(flags)
 	dN.StartScrubbingDefault()

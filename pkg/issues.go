@@ -2,17 +2,20 @@ package pkg
 
 import "fmt"
 
+// Issue represents a single issue
 type Issue struct {
 	Message   string
 	Processed bool
 }
 
+// Issues represents all the issues associated with a particular container
 type Issues struct {
 	containerID, containerName string
 	IssuesList                 []*Issue
 	ActionTaken                bool
 }
 
+// MinMaxUtilisationIssue creates an issue
 func (i *Issues) MinMaxUtilisationIssue(cSV float64, cSN, cID string, underUtil bool) {
 	var msg string
 	issName := mapContainerStatNameToIssueName[cSN]

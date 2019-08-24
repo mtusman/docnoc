@@ -7,6 +7,8 @@ import (
 )
 
 var (
+	// mapContainerStatNameToIssueName is used to keys of a ContainerStatName struct
+	// to a human friendly format
 	mapContainerStatNameToIssueName = map[string]string{
 		"CPUPercentage":    "CPU",
 		"MemoryPercentage": "Memory",
@@ -15,14 +17,16 @@ var (
 		"NetworkRxMB":      "Network I",
 		"NetworkTxMB":      "Network O",
 	}
-
+	// ContainerStatNamePercs represents issues represented as a percentage
 	ContainerStatNamePercs = []string{"CPU", "Memory"}
 )
 
+// ContainerSetStatistics represents the statistics collected for a particular container
 type ContainerSetStatistics struct {
 	CPUPercentage, MemoryPercentage, BlockWriteMB, BlockReadMB, NetworkRxMB, NetworkTxMB float64
 }
 
+// calculateCPUPercentUnix is used to calculate CPU usage of a linux container
 func calculateCPUPercentUnix(previousCPU, previousSystem uint64, v *types.StatsJSON) float64 {
 	var (
 		cpuPercent = 0.0
@@ -38,6 +42,7 @@ func calculateCPUPercentUnix(previousCPU, previousSystem uint64, v *types.StatsJ
 	return cpuPercent
 }
 
+// calculateCPUPercentWindows is used to calculate CPU usage of a windows container
 func calculateCPUPercentWindows(v *types.StatsJSON) float64 {
 	// Max number of 100ns intervals between the previous time read and now
 	possIntervals := uint64(v.Read.Sub(v.PreRead).Nanoseconds()) // Start with number of ns intervals
@@ -54,6 +59,7 @@ func calculateCPUPercentWindows(v *types.StatsJSON) float64 {
 	return 0.00
 }
 
+// calculateBlockIO is used to calculate Block IO of a linux container
 func calculateBlockIO(blkio types.BlkioStats) (blkRead uint64, blkWrite uint64) {
 	for _, bioEntry := range blkio.IoServiceBytesRecursive {
 		switch strings.ToLower(bioEntry.Op) {
@@ -66,6 +72,7 @@ func calculateBlockIO(blkio types.BlkioStats) (blkRead uint64, blkWrite uint64) 
 	return
 }
 
+// calculateNetwork is used to calculate Network RX/TX of both a linux and windows container
 func calculateNetwork(network map[string]types.NetworkStats) (float64, float64) {
 	var rx, tx float64
 

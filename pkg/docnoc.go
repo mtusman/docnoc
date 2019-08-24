@@ -13,6 +13,7 @@ import (
 	"github.com/go-yaml/yaml"
 )
 
+// DocNoc represents a docker sanitizer
 type DocNoc struct {
 	Client       *client.Client
 	DocNocConfig *DocNocConfig
@@ -21,6 +22,7 @@ type DocNoc struct {
 	Context      context.Context
 }
 
+// NewDocNoc returns a new DocNoc configuration
 func NewDocNoc(flags *Flags) *DocNoc {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion("1.39"))
 	if err != nil {
@@ -56,6 +58,9 @@ func NewDocNoc(flags *Flags) *DocNoc {
 	}
 }
 
+// StartScrubbingDefault goes through each container specified in the config file,
+// collects its statistics, and collects issues if those statistics fail to meet
+// predefined conditions
 func (dN *DocNoc) StartScrubbingDefault() {
 	containers, err := dN.Client.ContainerList(dN.Context, types.ContainerListOptions{})
 	if err != nil {
@@ -81,6 +86,8 @@ func (dN *DocNoc) StartScrubbingDefault() {
 	}
 }
 
+// ProcessReport is used to output all the issues to both the terminal as well as send
+// issues and actions reports to a slack webhook (if specified)
 func (dN *DocNoc) ProcessReport() {
 	PrintTitle("default")
 	for key, issues := range dN.Collector {
@@ -99,6 +106,7 @@ func (dN *DocNoc) ProcessReport() {
 	}
 }
 
+// processReportForApp process a report for a single issue
 func (dN *DocNoc) processReportForApp(key string, issues *Issues, cC ContainerConfig) {
 	numErrs := len((*issues).IssuesList)
 	PrintContainerName(key, numErrs)
@@ -127,6 +135,7 @@ func (dN *DocNoc) processReportForApp(key string, issues *Issues, cC ContainerCo
 
 }
 
+// containerNameInExclude returns if we don't need to sanitize a certain container
 func containerNameInExclude(name string, Exclude []string) bool {
 	for _, v := range Exclude {
 		if v == name {
@@ -136,6 +145,8 @@ func containerNameInExclude(name string, Exclude []string) bool {
 	return false
 }
 
+// scrubMinMaxEvaluate goes throught each attribute and compares it with preconfigured limits set in
+// the docnoc file
 func scrubMinMaxEvaluate(clctr Collector, cC ContainerConfig, cSS *ContainerSetStatistics, containerName, containerID string) {
 	v := reflect.ValueOf(*cSS)
 	typeOfcSS := v.Type()
