@@ -1,6 +1,6 @@
 package main
 
-import "docnoc_priv/cmd"
+import "github.com/mtusman/docnoc/cmd"
 
 func main() {
 	cmd.Execute()

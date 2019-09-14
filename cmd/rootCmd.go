@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"docnoc_priv/pkg"
+	"github.com/mtusman/docnoc/pkg"
 
 	"github.com/spf13/cobra"
 )

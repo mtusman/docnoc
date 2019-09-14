@@ -4,7 +4,7 @@ package pkg
 type Collector map[string]*Issues
 
 // MinMaxIssueCollector is used to compare collected statistics vs preconfigured limits
-// and consquently create an issue if needed
+// and consequently create an issue if needed
 func (c *Collector) MinMaxIssueCollector(cC ContainerConfig, cSV float64, cSN, cN, cID string) {
 	var mapContainerStatNameToType = map[string]MinMaxAllocation{
 		"CPUPercentage":    cC.CPU,
@@ -22,7 +22,7 @@ func (c *Collector) MinMaxIssueCollector(cC ContainerConfig, cSV float64, cSN, c
 		}
 		issues = (*c)[cN]
 	}
-	// if both max and min limits are 0 then end the function
+	// if both max and min limits are 0 then don't evaluate anything
 	if mapContainerStatNameToType[cSN].Min == 0 && mapContainerStatNameToType[cSN].Max == 0 {
 		return
 	}

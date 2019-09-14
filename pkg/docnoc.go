@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"path"
+	"os/exec"
 	"reflect"
 
 	"github.com/docker/docker/api/types"
@@ -32,18 +32,30 @@ func NewDocNoc(flags *Flags) *DocNoc {
 
 	var f []byte
 	if flags.ConfigFile != nil {
-		cwd, _ := os.Getwd()
-		f, err = ioutil.ReadFile(path.Join(cwd, *flags.ConfigFile))
+		f, err = ioutil.ReadFile(*flags.ConfigFile)
 	} else {
 		f, err = ioutil.ReadFile(defaultConfigFileLocation)
 	}
 
 	if err != nil {
-		fmt.Println("🔥: Unable to read docnoc config file")
+		fmt.Println("🔥: Unable to read docnoc config file", err)
 		os.Exit(1)
 	}
 
 	cfg := NewDocNocConfig()
+	ctx := context.Background()
+
+	// if docnoc is running inside a container, then add its name into exclude
+	out, err := exec.Command("cat /etc/hostname").Output()
+	if err == nil {
+		// docnoc is running inside container
+		containerInspect, err := cli.ContainerInspect(ctx, string(out))
+		if err != nil {
+			fmt.Println("🔥:Failed to get name of host container", err)
+			os.Exit(1)
+		}
+		cfg.Exclude = append(cfg.Exclude, containerInspect.Name)
+	}
 	err = yaml.Unmarshal(f, &cfg)
 	if err != nil {
 		fmt.Println("🔥: Can't unmarshall docnoc config file", err)
@@ -54,7 +66,7 @@ func NewDocNoc(flags *Flags) *DocNoc {
 		DocNocConfig: &cfg,
 		Flags:        flags,
 		Collector:    Collector{},
-		Context:      context.Background(),
+		Context:      ctx,
 	}
 }
 
