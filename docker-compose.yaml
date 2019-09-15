@@ -2,4 +2,4 @@ daemon:
   image: docnoc
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
-    - $(PWD)/examples/docnoc_config.yaml:/tmp/docnoc_config.yaml
+    - ./examples/docnoc_config.yaml:/tmp/docnoc_config.yaml

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"reflect"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -46,15 +47,15 @@ func NewDocNoc(flags *Flags) *DocNoc {
 	ctx := context.Background()
 
 	// if docnoc is running inside a container, then add its name into exclude
-	out, err := exec.Command("cat /etc/hostname").Output()
+	out, err := exec.Command("cat",  "/etc/hostname").Output()
 	if err == nil {
 		// docnoc is running inside container
-		containerInspect, err := cli.ContainerInspect(ctx, string(out))
+		containerInspect, err := cli.ContainerInspect(ctx, strings.TrimSpace(string(out)))
 		if err != nil {
 			fmt.Println("🔥:Failed to get name of host container", err)
 			os.Exit(1)
 		}
-		cfg.Exclude = append(cfg.Exclude, containerInspect.Name)
+		cfg.Exclude = append(cfg.Exclude, containerInspect.Name[1:])
 	}
 	err = yaml.Unmarshal(f, &cfg)
 	if err != nil {
@@ -102,9 +103,13 @@ func (dN *DocNoc) StartScrubbingDefault() {
 // issues and actions reports to a slack webhook (if specified)
 func (dN *DocNoc) ProcessReport() {
 	PrintTitle("default")
+	emptyIssues := true
 	for key, issues := range dN.Collector {
 		inExclude := containerNameInExclude(key, dN.DocNocConfig.Exclude)
 		if !inExclude {
+			if emptyIssues {
+				emptyIssues = false
+			}
 			dN.processReportForApp(key, issues, dN.DocNocConfig.DefaultContainerConfig)
 		}
 	}
@@ -112,9 +117,16 @@ func (dN *DocNoc) ProcessReport() {
 	for key, cC := range dN.DocNocConfig.ContainersConfig {
 		issues, ok := dN.Collector[key]
 		if ok {
+			if emptyIssues {
+				emptyIssues = false
+			}
 			PrintTitle(key)
 			dN.processReportForApp(key, issues, cC)
 		}
+	}
+
+	if emptyIssues {
+		PrintContainerName("No issues", 0)
 	}
 }
 

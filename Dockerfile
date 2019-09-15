@@ -5,4 +5,5 @@ WORKDIR /go/src/github.com/mtusman/docnoc/
 COPY . .
 RUN go get -d ./...
 RUN go install -v
-#ENTRYPOINT docnoc -f /tmp/docnoc_config.yaml
+RUN echo "* * * * * docnoc -f /tmp/docnoc_config.yaml proc/1/fd/1 2>/proc/1/fd/2" >> /etc/crontabs/root
+CMD ["crond", "-f"]
