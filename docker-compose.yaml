@@ -1,5 +1,5 @@
 daemon:
-  image: docnoc
+  image: mtusman/docnoc
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - ./examples/docnoc_config.yaml:/tmp/docnoc_config.yaml
