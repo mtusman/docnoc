@@ -20,13 +20,12 @@ Define a docnoc config yaml file. `default` will run your predefined conditions 
 docnoc:
     default:
         cpu:
-            min: 0
             max: 180
         memory:
             max: 90
         block_write:
             max: 100
-        action: stop
+        action: stop # Alternative option is 'restart'
     containers:
         web:
             cpu: 
